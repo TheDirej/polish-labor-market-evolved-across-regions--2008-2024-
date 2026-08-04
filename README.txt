@@ -26,6 +26,38 @@ It builds an end-to-end relational data pipeline that cleans, standardizes, and 
 
 ---
 
+## 📊 Interactive Tableau Dashboards & Storytelling
+
+### 1. Macroeconomic Labor Market Evolution (2008–2024)
+*Tracking national job creation, job destruction, and macro-shocks over 16 years:*
+
+![Macro Overview](Tableau_viz/overall_viz_1.png)
+
+- **Macro Trend:** Net job creation peaked at **3.01M in 2017**, followed by significant contraction during the COVID-19 pandemic (down to **987K in 2020**).
+- **KPI Summary:** Cumulative job creation reached **67.04M**, with **37.92M** jobs closed, yielding a net positive growth of **29.12M positions**.
+
+---
+
+### 2. Regional Job Density & Performance Ranking
+*Analyzing spatial job creation and regional efficiency scaled per 1,000 residents:*
+
+![Regional Distribution](Tableau_viz/regions_differ_viz_2.jpg)
+
+- **Economic Dominance:** **Mazowieckie** leads nationally with **55.20 net jobs per 1k residents**, heavily outperforming regional benchmarks.
+- **Regional Disparity:** Clear divide between industrial/metropolitan centers and peripheral eastern voivodeships (e.g., Śląskie at **39.70** vs. Świętokrzyskie at **10.20**).
+
+---
+
+### 3. Outperformers vs. Underperformers Benchmark
+*Isolating Top 5 and Bottom 5 voivodeships against the national average:*
+
+![Outperformers Benchmark](Tableau_viz/outperform_viz_3.jpg)
+
+- **Top 5 Engine:** Mazowieckie, Wielkopolskie, Śląskie, Dolnośląskie, and Małopolskie consistently drive national employment expansion.
+- **Lagging Regions:** Świętokrzyskie, Lubelskie, and Podkarpackie require targeted economic intervention, falling significantly below the national average benchmark.
+
+---
+
 ## 💡 Key Analytical Takeaways
 
 - **Regional Job Polarization:** Economic job creation is heavily concentrated in major metropolitan hubs, while peripheral voivodeships experience disproportionate rates of job destruction relative to population size.
@@ -55,6 +87,9 @@ JOIN v_population_jobs AS p
 WHERE a.region <> 'POLSKA'
 GROUP BY a.region, a.year;
 
+---
+
 ## 📬 Contact
 - **Author:** Damian Sobolewski
 - **LinkedIn:** [Damian Sobolewski Profile](https://www.linkedin.com/in/damian-sobolewski-43257a260/)
+- **Tableau Public:** [Damian Sobolewski Profile](https://public.tableau.com/app/profile/damian3277/vizzes)
