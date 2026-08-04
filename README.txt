@@ -54,3 +54,7 @@ JOIN v_population_jobs AS p
     AND p.region = 'POLSKA' -- Join with national baseline for benchmarking
 WHERE a.region <> 'POLSKA'
 GROUP BY a.region, a.year;
+
+## 📬 Contact
+- **Author:** Damian Sobolewski
+- **LinkedIn:** [Damian Sobolewski Profile](https://www.linkedin.com/in/damian-sobolewski-43257a260/)
