@@ -1,79 +1,56 @@
-#  Regional Labor Market Analysis in Poland (2008–2024)
+# 🇵🇱 Polish Labor Market & Demographics Pipeline (GUS Data 2008–2024)
 
-##  Project Overview
-This project analyzes job creation and closure trends across Polish regions between 2008 and 2024.  
-The goal is to identify regional differences, long-term trends, and top-performing vs underperforming areas.
-
-The analysis combines SQL data preparation with interactive dashboards built in Tableau.
+**Author:** Damian Sobolewski  
+**Tools:** MySQL Workbench, Advanced SQL (Views, Dynamic Aggregations, Benchmarking)  
+**Domain:** Macroeconomics, Public Sector Analytics, Regional Development  
 
 ---
 
-##  Key Questions
-- How has job creation evolved over time?
-- Which regions perform best and worst?
-- Are there noticeable geographic patterns?
-- How do trends change year by year?
+## 📌 Executive Summary
+This project analyzes **16 years of Polish demographic and labor market fluctuations (2008–2024)** sourced directly from the Central Statistical Office of Poland (GUS). 
+
+It builds an end-to-end relational data pipeline that cleans, standardizes, and joins raw demographic metrics (population density, urbanization rates) with transactional job creation and destruction data. The final output generates **macroeconomic KPIs** and benchmarks regional voivodeships against national averages (`POLSKA`).
 
 ---
 
-## ️ Tools Used
-- SQL (data cleaning & transformation)
-- Tableau (data visualization & dashboards)
+## 🛠️ Data Pipeline & SQL Architecture
+
+1. **ETL & Data Standardization:**
+   - Cleansed Polish regional encoding issues, cast string inputs into strict `DECIMAL` types, and standardized mixed units of measurement (absolute counts vs. thousands vs. percentages).
+2. **Matrix Pivoting (Conditional Aggregation):**
+   - Transformed long-format demographic tables into structured wide-format analytical entities using optimized `SUM(CASE WHEN...)` pivoting logic.
+3. **Analytical View Engineering (`SQL Views`):**
+   - Engineered modular SQL Views (`v_population_jobs` and `v_population_jobs_final`) to abstract complex joins, aggregations, and business logic from end queries.
+4. **Macroeconomic Benchmarking & Per-Capita Scaling:**
+   - Joined regional trends against country-wide baselines (`POLSKA`) to dynamically calculate market shares and net job creation per 1,000 residents (`net_jobs_per_1k_population`).
 
 ---
 
-##  Dashboards
+## 💡 Key Analytical Takeaways
 
-### 1. Overall Trends
-![Dashboard 1](tableau_viz/dashboard_screens/overall_viz_1.png)
-
-Shows overall job creation trends over time, including key drops (e.g., 2008–2009, 2020).
-
----
-
-### 2. Regional Differences
-![Dashboard 2](tableau_viz/dashboard_screens/regions_differ_viz_2.png)
-
-Map + ranking showing how regions differ in job creation per 1,000 people for a selected year.
+- **Regional Job Polarization:** Economic job creation is heavily concentrated in major metropolitan hubs, while peripheral voivodeships experience disproportionate rates of job destruction relative to population size.
+- **Demographic Pressure:** A strong correlation exists between declining population density in rural zones and negative net job generation, accelerating urbanization trends.
+- **Risk Mitigation via Per-Capita Scaling:** Measuring absolute job numbers distorts regional performance; evaluating **Net Jobs per 1,000 Residents** isolates actual economic efficiency across small vs. large regions.
 
 ---
 
-### 3. Top & Bottom Regions
-![Dashboard 3](tableau_viz/dashboard_screens/outperform_viz_3.png)
+## 💻 Featured SQL Code Snippet
 
-Highlights the top 5 and bottom 5 regions for a selected year.
+### Analytical View Engine with National Benchmarking
+*Demonstrating Self-Joins against national baselines ('POLSKA') and dynamic metric derivation:*
 
----
-
-##  Key Insights
-- Significant drops in job creation are visible during the 2008–2009 financial crisis and in 2020.
-- Regional disparities are consistent, with some regions outperforming others across multiple years.
-- The ranking highlights stable top performers and consistently weaker regions.
-
----
-
-##  Project Structure
-
-	project/
-	├── sql/
-	│   ├── population_jobs_GUS
-	│
-	├── tableau_viz/
-	│   └── dashboard_screens/
-	│       ├── overall_viz_1
-	│       ├── regions_differ_viz_2
-	│       ├── outperform_viz_3
-	│
-	├── README.md
-	
----
-
-##  Links
-- Tableau Public: https://public.tableau.com/views/PolandLaborMarketPopulationDashboard20082024/HowHasthePolishLaborMarketEvolvedAcrossRegions20082024?:language=en-US&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link
-- GitHub Repository: (this repo)
-
----
-
-##  Notes
-- Net job creation is calculated as the difference between jobs created and closed, per 1,000 people.
-- Urbanization data is available from 2010 onwards.
+```sql
+CREATE OR REPLACE VIEW v_population_jobs_final AS
+SELECT 
+    a.*,
+    (a.created_jobs - a.closed_jobs) AS net_jobs,
+    ROUND(((a.created_jobs - a.closed_jobs) / NULLIF((p.created_jobs - p.closed_jobs), 0)) * 100, 2) AS net_jobs_share_pct,
+    ROUND(((a.closed_jobs / NULLIF(p.closed_jobs, 0)) * 100), 2) AS closed_jobs_share_pct,
+    ROUND(((a.created_jobs / NULLIF(p.created_jobs, 0)) * 100), 2) AS created_jobs_share_pct,
+    ROUND(((a.created_jobs - a.closed_jobs) / NULLIF(a.population_thousands, 0)), 1) AS net_jobs_per_1k_population
+FROM v_population_jobs AS a
+JOIN v_population_jobs AS p
+    ON a.year = p.year
+    AND p.region = 'POLSKA' -- Join with national baseline for benchmarking
+WHERE a.region <> 'POLSKA'
+GROUP BY a.region, a.year;
